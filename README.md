@@ -1,16 +1,21 @@
 # tyrads_assessment
 
-A new Flutter project.
+A new Flutter project for TyrAds Test
 
-## Getting Started
+## TyrAds Android Developer Test
 
-This project is a starting point for a Flutter application.
+Problem:
+Create a vertical Stepper Component in Flutter using components provided by Flutter SDK itself without using any library.
+The data for the stepper should come from native android via a platform channel.
+On the Native side, code can be written in either java or kotlin.
 
-A few resources to get you started if this is your first Flutter project:
+Initial State
+![Initial State](state1.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Final State
+![Final State](state2.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Instruction and Time frame:
+1. Push the code to GitHub and share the link to the repository.
+2. The time frame for you to resolve and send this test is max one week.
+
