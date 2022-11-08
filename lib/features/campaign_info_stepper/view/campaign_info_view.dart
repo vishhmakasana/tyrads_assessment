@@ -41,6 +41,11 @@ class _CampaignInfoViewState extends State<CampaignInfoView> {
                     child: Stepper(
                       type: StepperType.vertical,
                       physics: const ScrollPhysics(),
+                      onStepTapped: (tappedStep) {
+                        _currentStep > tappedStep
+                            ? setState(() => _currentStep = tappedStep)
+                            : null;
+                      },
                       currentStep: _currentStep,
                       steps: getSteps(_mStepInfoList!),
                       controlsBuilder: (context, _) {
