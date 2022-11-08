@@ -16,6 +16,7 @@ class CampaignInfoView extends StatefulWidget {
 }
 
 class _CampaignInfoViewState extends State<CampaignInfoView> {
+  List<StepInfoModel>? _mStepInfoList;
   int _currentStep = 0;
 
   @override
@@ -31,81 +32,66 @@ class _CampaignInfoViewState extends State<CampaignInfoView> {
         appBar: AppBar(
           title: const Text('Future Stepper Demo'),
         ),
-        body: FutureBuilder(
-          builder: (ctx, snapshot) {
-            // Checking if future is resolved
-            if (snapshot.connectionState == ConnectionState.done) {
-              // If we got an error
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text(
-                    '${snapshot.error} occurred',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                );
-                // if we got our data
-              } else if (snapshot.hasData) {
-                // Extracting data from snapshot object
-                final data = snapshot.data as List<StepInfoModel>;
-                return Column(
-                  children: [
-                    Expanded(
-                      child: Stepper(
-                        type: StepperType.vertical,
-                        physics: const ScrollPhysics(),
-                        currentStep: _currentStep,
-                        steps: getSteps(data),
-                        controlsBuilder: (context, _) {
-                          return Row(
-                            children: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  if (_currentStep < data.length - 1) {
-                                    setState(() => _currentStep += 1);
-                                  } else if (_currentStep == data.length - 1) {
-                                    Utils.showInfoDialog(
-                                        context: context,
-                                        title: 'Success',
-                                        message:
-                                            'You have completed ad campaign instructions.');
-                                  }
-                                },
-                                style: TextButton.styleFrom(
-                                    backgroundColor: Colors.blue),
-                                child: Text(
-                                  _currentStep == data.length - 1
-                                      ? 'FINISH'
-                                      : 'CONTINUE',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
+        body: Builder(
+          builder: (ctx) {
+            if (_mStepInfoList != null) {
+              return Column(
+                children: [
+                  Expanded(
+                    child: Stepper(
+                      type: StepperType.vertical,
+                      physics: const ScrollPhysics(),
+                      currentStep: _currentStep,
+                      steps: getSteps(_mStepInfoList!),
+                      controlsBuilder: (context, _) {
+                        return Row(
+                          children: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                if (_currentStep < _mStepInfoList!.length - 1) {
+                                  setState(() => _currentStep += 1);
+                                } else if (_currentStep ==
+                                    _mStepInfoList!.length - 1) {
+                                  Utils.showInfoDialog(
+                                      context: context,
+                                      title: 'Success',
+                                      message:
+                                          'You have completed ad campaign instructions.');
+                                }
+                              },
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Colors.blue),
+                              child: Text(
+                                _currentStep == _mStepInfoList!.length - 1
+                                    ? 'FINISH'
+                                    : 'CONTINUE',
+                                style: const TextStyle(color: Colors.white),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  _currentStep > 0
-                                      ? setState(() => _currentStep -= 1)
-                                      : null;
-                                },
-                                child: const Text(
-                                  'BACK',
-                                  style: TextStyle(color: Colors.grey),
-                                ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _currentStep > 0
+                                    ? setState(() => _currentStep -= 1)
+                                    : null;
+                              },
+                              child: const Text(
+                                'BACK',
+                                style: TextStyle(color: Colors.grey),
                               ),
-                            ],
-                          );
-                        },
-                      ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                  ],
-                );
-              }
+                  ),
+                ],
+              );
             }
-
             // Displaying LoadingSpinner to indicate waiting state
             return const Center(
               child: CircularProgressIndicator(),
             );
           },
-          future: getStepsInfo(),
         ),
       ),
     );
@@ -137,21 +123,20 @@ class _CampaignInfoViewState extends State<CampaignInfoView> {
     return mList;
   }
 
-  Future<List<StepInfoModel>> getStepsInfo() async {
+  Future<void> getStepsInfo() async {
     try {
       final String result =
           await platformChannel.invokeMethod(stepsInfoMethodName);
       var stepsJson = jsonDecode(result) as List;
-      var mStepInfoList = List<StepInfoModel>.from(stepsJson.map<dynamic>(
+      _mStepInfoList = List<StepInfoModel>.from(stepsJson.map<dynamic>(
         (dynamic x) {
           return StepInfoModel.fromJson(x as Map<String, dynamic>);
         },
       ));
-      return mStepInfoList;
+      setState(() {});
     } on PlatformException catch (e) {
       // todo : show platform not supported toast
       debugPrint("Error : $e");
-      return [];
     }
   }
 }
